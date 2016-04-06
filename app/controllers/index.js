@@ -126,6 +126,9 @@ export default Ember.Controller.extend({
 				.fail(function(err) {
 					console.log('There was an error:', err);
 				});
+		},
+		logout() {
+			this.set('loggedIn', false);
 		}
 	}
 });
