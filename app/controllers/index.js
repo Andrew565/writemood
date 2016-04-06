@@ -16,7 +16,6 @@ export default Ember.Controller.extend({
 			logo: 'fa fa-facebook'
 		}
 	],
-	config: config,
 	srvc_name: '',
 	name: '',
 	count: 100,
