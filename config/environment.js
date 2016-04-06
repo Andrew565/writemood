@@ -18,7 +18,7 @@ module.exports = function(environment) {
       // when it is created
     },
     oauth: process.env.OAUTH_KEY
-  };
+  };  
 
   if (environment === 'development') {
     // ENV.APP.LOG_RESOLVER = true;
