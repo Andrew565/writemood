@@ -3,13 +3,28 @@
 
 	<p>What's your WriteMood? Use this app to determine if your writing is more often positive or negative, or if you're well-balanced between the two.</p>
 
-	{{!-- {{#each services as |service|}} --}}
-		<button {{action 'loginWith' 'twitter'}}>Log in with Twitter</button>
-	{{!-- {{/each}} --}}
+	<ul>
+		{{#each services as |service|}}
+			<li><i class="fa {{service.logo}}"></i> <a href="#" {{action 'loginWith' service.srvc_name}}>What's my {{service.title}} WriteMood?</a></li>
+		{{/each}}
+	</ul>
 {{/unless}}
 
 {{#if loggedIn}}
-	<h3>Hello {{name}}, here is your WriteMood based on what you write on {{srvc_name}}</h3>
+	{{#if processing}}
+		<h3>Hey {{name}}, your WriteMood is now being determined. See the live statistics below as calculations occur.</h3>
+	{{else}}
+		<h3>Hello {{name}}, here is your WriteMood based on what you write on {{srvc_name}}</h3>
+	{{/if}}
+
+	<ul>
+		<li><strong>Total writings analyzed: {{count}}</strong></li>
+		{{#each sentTypes as |sentType|}}
+			<li>{{sentType.title}}: {{sentType.val}}</li>
+		{{/each}}
+	</ul>
+
+	<a href="#" {{action "logout"}}>Start Over</a>
 {{/if}}
 
 {{outlet}}
