@@ -1,0 +1,93 @@
+import config from '../config/environment';
+import Ember from 'ember';
+
+export default Ember.Controller.extend({
+	appCtrl: Ember.inject.controller('application'),
+	loggedIn: Ember.computed.alias('appCtrl.loggedIn'),
+	srvc_name: '',
+	name: '',
+	sentiments: { // word lists taken from https://github.com/pubnub/tweet-emotion/blob/gh-pages/js/app.js (MIT License)
+		positiveWords: [
+			'excellent', 'amazing', 'beautiful', 'nice', 'marvelous', 'magnificent', 'fabulous', 'astonishing', 'fantastic', 'peaceful', 'fortunate', 'brilliant', 'glorious', 'cheerful', 'gracious', 'grateful', 'splendid', 'superb', 'honorable', 'thankful', 'inspirational', 'ecstatic', 'victorious', 'virtuous', 'proud', 'wonderful', 'lovely', 'delightful'
+		],
+		happyWords: [
+		'happy', 'lucky', 'awesome', 'excited', 'fun', 'amusing', 'amused', 'pleasant', 'pleasing', 'glad', 'enjoy', 'jolly', 'delightful', 'joyful', 'joyous', ':-)', ':)', ':-D', ':D', '=)','☺'
+		],
+		lovelyWords: [
+			'love', 'adore', 'blissful', 'heartfelt', 'loving', 'lovable', 'sweetheart', 'darling', 'kawaii', 'married', 'engaged'
+		],
+		negativeWords: [
+			'unhappy', 'bad', 'sorry', 'annoyed', 'dislike', 'anxious', 'ashamed', 'cranky', 'crap', 'crappy', 'envy', 'awful', 'bored', 'boring', 'bothersome', 'bummed', 'burned', 'chaotic', 'defeated', 'devastated', 'stressed', 'disconnected', 'discouraged', 'dishonest', 'doomed', 'dreadful', 'embarrassed', 'evicted', 'freaked out', 'frustrated', 'stupid', 'guilty', 'hopeless', 'horrible', 'horrified', 'humiliated', 'ignorant', 'inhumane', 'cruel', 'insane', 'insecure', 'nervous', 'offended', 'oppressed', 'overwhelmed', 'pathetic', 'powerless', 'poor', 'resentful', 'robbed', 'screwed'
+		],
+		sadWords: [
+		'sad', 'alone', 'anxious', 'depressed', 'disappointed', 'disappointing', 'sigh', 'sobbing', 'crying', 'cried', 'dumped', 'heartbroken', 'helpless', 'hurt', 'miserable', 'misunderstood', 'suicidal', ':-(', ':(', '=(', ';('
+		],
+		angryWords: [
+			'hate', 'damn', 'angry', 'betrayed', 'bitched','disgust', 'disturbed', 'furious', 'harassed', 'hateful', 'hostile', 'insulted', 'irritable', 'jealous', ' rage ', 'pissed'
+
+		],
+		sickWords: [
+			'sick', ' ill ', 'under weather', 'throw up', 'threw up', 'throwing up', 'puke', 'puking', 'pain', 'hangover', 'intoxicated'
+		]
+	},
+	get_tweets(srvc, user_id) {
+		var params = {
+			user_id: user_id,
+			count: 100,
+			trim_user: true
+		};
+		var sentiments = this.get('sentiments');
+		var sentCount = {
+			positiveWords: 0,
+			happyWords: 0,
+			lovelyWords: 0,
+			negativeWords: 0,
+			sadWords: 0,
+			angryWords: 0,
+			sickWords: 0,
+			totalWords: 0
+		};
+		srvc.get('/1.1/statuses/user_timeline.json', params)
+			.done(function(tweets) {
+				let tweet_texts = tweets.map(function(tweet) {
+					return tweet.text;
+				});
+				tweet_texts.forEach(function(text) {
+					let words = Ember.String.w(text);
+					sentCount.totalWords += words.length;
+					Object.keys(sentiments).forEach(function(snt) {
+						words.forEach(function(word) {
+							sentCount[snt] += (sentiments[snt].contains(word)) ? 1 : 0;
+						});
+					});
+				});
+			})
+			.fail(function(err) {
+				console.log("get_tweets had an error:", err);
+			})
+	},
+	actions: {
+		loginWith(srvc_name) {
+			let ctrl = this;
+			OAuth.initialize(config.oauth);
+			OAuth.popup(srvc_name, {cache: true})
+				.done(function(srvc) {
+					ctrl.set('loggedIn', true);
+					ctrl.set('srvc_name', srvc_name.capitalize());
+					srvc.me()
+						.done(function(me) {
+							ctrl.set('name', me.name);
+							if (srvc_name == 'twitter') {
+								ctrl.get_tweets(srvc, me.id);
+							}
+						})
+						.fail(function(err) {
+							console.log('Error getting "me":', err);
+						})
+				})
+				.fail(function(err) {
+					console.log('There was an error:', err);
+				});
+		}
+	}
+});

@@ -1,11 +1,15 @@
-<h2 id="title">WriteMood</h2>
-
-<p>What's your WriteMood? Use this app to determine if your writing is more often positive or negative, or if you're well-balanced between the two.</p>
-
 {{#unless loggedIn}}
-	{{#each services as |service|}}
-		<button {{action 'loginWith' service}}>Log in with {{service}}</button>
-	{{/each}}
+	<h2 id="title">WriteMood</h2>
+
+	<p>What's your WriteMood? Use this app to determine if your writing is more often positive or negative, or if you're well-balanced between the two.</p>
+
+	{{!-- {{#each services as |service|}} --}}
+		<button {{action 'loginWith' 'twitter'}}>Log in with Twitter</button>
+	{{!-- {{/each}} --}}
 {{/unless}}
+
+{{#if loggedIn}}
+	<h3>Hello {{name}}, here is your WriteMood based on what you write on {{srvc_name}}</h3>
+{{/if}}
 
 {{outlet}}
