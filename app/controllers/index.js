@@ -1,4 +1,4 @@
-import config from '../config/environment';
+import config from 'writemood/config/environment';
 import Ember from 'ember';
 
 export default Ember.Controller.extend({
@@ -16,6 +16,7 @@ export default Ember.Controller.extend({
 			logo: 'fa fa-facebook'
 		}
 	],
+	config: config,
 	srvc_name: '',
 	name: '',
 	count: 100,
