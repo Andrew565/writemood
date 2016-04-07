@@ -5,7 +5,10 @@
 
 	<ul>
 		{{#each services as |service|}}
-			<li><i class="fa {{service.logo}}"></i> <a href="#" {{action 'loginWith' service.srvc_name}}>What's my {{service.title}} WriteMood?</a></li>
+			<li>
+				<i class="{{service.logo}}"></i>
+				<a href="#" {{action 'loginWith' service.srvc_name}}>What's my {{service.title}} WriteMood?</a>
+			</li>
 		{{/each}}
 	</ul>
 {{/unless}}

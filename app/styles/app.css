@@ -1,0 +1,36 @@
+body {
+	background-color: #6d695c;
+	background-image:
+		repeating-linear-gradient(120deg, rgba(255,255,255,.1), rgba(255,255,255,.1) 1px, transparent 1px, transparent 60px),
+		repeating-linear-gradient(60deg, rgba(255,255,255,.1), rgba(255,255,255,.1) 1px, transparent 1px, transparent 60px),
+		linear-gradient(60deg, rgba(0,0,0,.1) 25%, transparent 25%, transparent 75%, rgba(0,0,0,.1) 75%, rgba(0,0,0,.1)),
+		linear-gradient(120deg, rgba(0,0,0,.1) 25%, transparent 25%, transparent 75%, rgba(0,0,0,.1) 75%, rgba(0,0,0,.1));
+	background-size: 70px 120px;
+	font-family: sans-serif;
+}
+
+.container {
+	width: 50%;
+	margin: 5% auto;
+	padding: 2em 2em;
+	background: rgba(233, 214, 197, 0.65);
+}
+
+.container h2 {
+	text-align: center;
+}
+
+.container ul {
+	list-style: none;
+}
+
+.container ul li {
+	width: 45%;
+	text-align: center;
+	display: inline-block;
+}
+
+.container ul li i {
+	font-size: 2em;
+	display: block;
+}
