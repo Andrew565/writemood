@@ -20,8 +20,9 @@
 		<h3>Hello {{name}}, here is your WriteMood based on what you write on {{srvc_name}}</h3>
 	{{/if}}
 
+	<strong style="text-align: center;">Total writings analyzed: {{actualCount}}</strong>
+
 	<ul>
-		<li><strong>Total writings analyzed: {{actualCount}}</strong></li>
 		{{#each sentTypes as |sentType|}}
 			<li>{{sentType.title}}: {{sentType.val}}</li>
 		{{/each}}

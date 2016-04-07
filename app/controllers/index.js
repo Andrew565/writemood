@@ -121,7 +121,6 @@ export default Ember.Controller.extend({
 		var ctrl = this;
 		srvc.get('/me/posts')
 			.done(function(response) {
-				console.log("fb response", response);
 				ctrl.set('processing', true);
 				var posts = response.data;
 				let post_texts = posts.map(function(post) {
