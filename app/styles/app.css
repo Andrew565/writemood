@@ -24,13 +24,18 @@ body {
 	list-style: none;
 }
 
-.container ul li {
+.container .service {
 	width: 45%;
 	text-align: center;
 	display: inline-block;
+	border-right: 1px solid black;
 }
 
-.container ul li i {
+.container .service:last-of-type {
+	border-right: none;
+}
+
+.container .service i {
 	font-size: 2em;
 	display: block;
 }

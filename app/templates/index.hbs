@@ -3,14 +3,12 @@
 
 	<p>What's your WriteMood? Use this app to determine if your writing is more often positive or negative, or if you're well-balanced between the two.</p>
 
-	<ul>
-		{{#each services as |service|}}
-			<li>
-				<i class="{{service.logo}}"></i>
-				<a href="#" {{action 'loginWith' service.srvc_name}}>What's my {{service.title}} WriteMood?</a>
-			</li>
-		{{/each}}
-	</ul>
+	{{#each services as |service|}}
+		<div class="service">
+			<i class="{{service.logo}}"></i>
+			<a href="#" {{action 'loginWith' service.srvc_name}}>What's my {{service.title}} WriteMood?</a>
+		</div>
+	{{/each}}
 {{/unless}}
 
 {{#if loggedIn}}
