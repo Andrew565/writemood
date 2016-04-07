@@ -19,6 +19,7 @@ export default Ember.Controller.extend({
 	srvc_name: '',
 	name: '',
 	count: 100,
+	actualCount: 0,
 	processing: false,
 	sentCount: new Ember.Object({
 		positiveWords: 0,
@@ -74,34 +75,69 @@ export default Ember.Controller.extend({
 			'sick', ' ill ', 'under weather', 'throw up', 'threw up', 'throwing up', 'puke', 'puking', 'pain', 'hangover', 'intoxicated'
 		]
 	},
+	process_text(texts) {
+		var ctrl = this;
+		return new Ember.RSVP.Promise(function(resolve, reject) {
+			var sentiments = ctrl.get('sentiments');
+			var sentCount = ctrl.get('sentCount');
+			texts.forEach(function(text) {
+				ctrl.incrementProperty('actualCount');
+				var words = Ember.String.w(text);
+				sentCount.incrementProperty('totalWords', words.length);
+				Object.keys(sentiments).forEach(function(snt) {
+					words.forEach(function(word) {
+						word = word.replace(/\.*,*/g, '');
+						if (sentiments[snt].contains(word)) {
+							sentCount.incrementProperty(snt);
+						}
+					});
+				});
+			});
+			resolve();
+		});
+	},
 	get_tweets(srvc, user_id) {
 		var params = `?user_id=${user_id}&count=${this.get('count')}&trim_user=true`;
-		var sentiments = this.get('sentiments');
-		var sentCount = this.get('sentCount');
 		var ctrl = this;
-		srvc.get('/1.1/statuses/user_timeline.json' + params,)
+		srvc.get('/1.1/statuses/user_timeline.json' + params)
 			.done(function(tweets) {
 				ctrl.set('processing', true);
 				let tweet_texts = tweets.map(function(tweet) {
 					return tweet.text;
 				});
-				tweet_texts.forEach(function(text) {
-					var words = Ember.String.w(text);
-					sentCount.incrementProperty('totalWords', words.length);
-					Object.keys(sentiments).forEach(function(snt) {
-						words.forEach(function(word) {
-							word = word.replace(/\.*,*/g, '');
-							if (sentiments[snt].contains(word)) {
-								sentCount.incrementProperty(snt);
-							}
-						});
+				ctrl.process_text(tweet_texts)
+					.then(function() {
+						ctrl.set('processing', false);
+					})
+					.catch(function(err) {
+						console.log("There was a problem processing tweet_texts", err);
 					});
-				});
-				ctrl.set('sentCount', sentCount);
-				ctrl.set('processing', false);
 			})
 			.fail(function(err) {
 				console.log("get_tweets had an error:", err);
+			});
+	},
+	get_fb_posts(srvc) {
+		var ctrl = this;
+		srvc.get('/me/posts')
+			.done(function(response) {
+				console.log("fb response", response);
+				ctrl.set('processing', true);
+				var posts = response.data;
+				let post_texts = posts.map(function(post) {
+					return post.message;
+				});
+				post_texts = post_texts.compact();
+				ctrl.process_text(post_texts)
+					.then(function() {
+						ctrl.set('processing', false);
+					})
+					.catch(function(err) {
+						console.log("There was a problem processing post_texts", err);
+					});
+			})
+			.fail(function(err) {
+				console.log("get_fb_posts had an error:", err);
 			});
 	},
 	actions: {
@@ -117,6 +153,8 @@ export default Ember.Controller.extend({
 							ctrl.set('loggedIn', true);
 							if (srvc_name === 'twitter') {
 								ctrl.get_tweets(srvc, me.id);
+							} else if (srvc_name === 'facebook') {
+								ctrl.get_fb_posts(srvc, me.id);
 							}
 						})
 						.fail(function(err) {
@@ -128,6 +166,19 @@ export default Ember.Controller.extend({
 				});
 		},
 		logout() {
+			var sentCount = this.get('sentCount');
+			sentCount.setProperties({
+				positiveWords: 0,
+				happyWords: 0,
+				lovelyWords: 0,
+				negativeWords: 0,
+				sadWords: 0,
+				angryWords: 0,
+				sickWords: 0,
+				totalWords: 0
+			});
+			this.set('actualCount', 0);
+			this.set('srvc_name', '');
 			this.set('loggedIn', false);
 		}
 	}
